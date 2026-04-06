@@ -109,7 +109,30 @@ private:
         
         delete node;
     }
+    
+    void updateNode(Node* node, const char* a)
+    {
+        char oldPassword[50],password[50];
+        cout << "Enter Old Password: ";
+        cin.getline(oldPassword, 50);
+        
+        xorP(node->Password, password, node->xorKey);
+        if(strcmp(password,oldPassword)==0)
+        {
+            cout<<"Password Verified, Enter new Passsword to update: ";
+            char newPassword[50];
+            cin.ignore();
+            cin.getline(newPassword, 50);
+            
+            node->xorKey = (rand() % 32);
+            xorP(newPassword, node->Password, node->xorKey);
+        }
+        else
+        {
+            cout<<"Password Mismatch.\n";
+        }
 
+    }
     
     
     Node* minValueNode(Node* node) 
@@ -215,11 +238,11 @@ public:
         {
             char decrypted[50];
             xorP(result->Password, decrypted, result->xorKey);
-            cout << "account: " << result->Name << "\nPassword: " << decrypted << endl;
-        } 
+            cout << "Account: " << result->Name << "\nPassword: " << decrypted << endl;
+        }
         else 
         {
-            cout << "account not found.\n";
+            cout << "Account not found.\n";
         }
     }
 
@@ -237,10 +260,8 @@ public:
 
     void removePassword() 
     {
-        if (root == nullptr) 
-        {
+        if (root == nullptr)
             return;
-        }
 
         char account[50];
         cout << "Enter account Name to delete: ";
@@ -250,12 +271,35 @@ public:
         if (search(root, account) != nullptr) 
         {
             root = deleteNode(root, account);
-            cout << "account '" << account << "' deleted successfully.\n";
-        } 
+            cout << "Account '" << account << "' deleted successfully.\n";
+        }
         else 
         {
-            cout << "account not found.\n";
+            cout << "Account not found.\n";
         }
+    }
+    
+    void updatePassword()
+    {
+        if (root == nullptr)
+            return;
+        
+        char account[50];
+        cout << "Enter account Name to update: ";
+        cin.ignore();
+        cin.getline(account, 50);
+        
+        if (search(root, account) != nullptr)
+        {
+            updateNode(root, account);
+            cout << "Password for account '" << account << "' updated successfully.\n";
+        }
+        else
+        {
+            cout << "Account not found.\n";
+        }
+
+
     }
 
     void saveToFile() 
@@ -309,7 +353,8 @@ int main()
         cout << "2. Retrive account and Password\n";
         cout << "3. Display All accounts\n";
         cout << "4. Delete Password\n";
-        cout << "5. Exit\n";
+        cout << "5. Update Password\n";
+        cout << "6. Exit\n";
         cout << "Enter choice: ";
         cin >> choice;
 
@@ -330,13 +375,17 @@ int main()
                 manager.removePassword();
                 break;
             case 5:
+                manager.displayAll();
+                manager.updatePassword();
+                break;
+            case 6:
                 cout << "Saving data and exiting...\n";
                 break;
             default:
                 cout << "Invalid choice. Try again.\n";
         }
         manager.saveToFile();
-    } while (choice != 5);
+    } while (choice != 6);
 
     return 0;
 }
