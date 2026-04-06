@@ -9,7 +9,7 @@ using namespace std;
 struct PasswordNode 
 {
     char serviceName[50];
-    char encryptedPassword[100];
+    char encryptedPassword[50];
     int xorKey;
     PasswordNode *left, *right;
 
