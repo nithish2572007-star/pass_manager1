@@ -187,12 +187,6 @@ public:
         cout << "Enter account Name: ";
         cin.ignore();
         cin.getline(newNode->Name, 50);
-        if (search(root, newNode->Name) != nullptr) 
-        {
-            cout << "Account already exists.\n";
-            delete newNode;
-            return; 
-        }
 
         cout << "Enter Password: ";
         cin.getline(rawPassword, 50);
