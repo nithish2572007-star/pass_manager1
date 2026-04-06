@@ -8,8 +8,8 @@ using namespace std;
 
 struct Node 
 {
-    char serviceName[50];
-    char encryptedPassword[50];
+    char Name[50];
+    char Password[50];
     int xorKey;
     Node *left, *right;
 
@@ -26,7 +26,7 @@ class PasswordManager
 private:
     Node* root;
 
-    void xorProcess(const char* input, char* output, int key) 
+    void xorP(const char* input, char* output, int key) 
     {
         int i = 0;
         for (i = 0; input[i] != '\0'; i++) 
@@ -42,11 +42,11 @@ private:
         {
             return newNode;
         }
-        if (strcmp(newNode->serviceName, node->serviceName) < 0) 
+        if (strcmp(newNode->Name, node->Name) < 0) 
         {
             node->left = insert(node->left, newNode);
         } 
-        else if (strcmp(newNode->serviceName, node->serviceName) > 0) 
+        else if (strcmp(newNode->Name, node->Name) > 0) 
         {
             node->right = insert(node->right, newNode);
         }
@@ -54,17 +54,17 @@ private:
     }
 
 
-    Node* search(Node* node, const char* service) 
+    Node* search(Node* node, const char* account) 
     {
-        if (node == nullptr || strcmp(node->serviceName, service) == 0) 
+        if (node == nullptr || strcmp(node->Name, account) == 0) 
         {
             return node;
         }
-        if (strcmp(service, node->serviceName) < 0) 
+        if (strcmp(account, node->Name) < 0) 
         {
-            return search(node->left, service);
+            return search(node->left, account);
         }
-        return search(node->right, service);
+        return search(node->right, account);
     }
 
 
@@ -77,7 +77,7 @@ private:
         }
         inOrder(node->left);
         
-        cout << "Service: " << node->serviceName << endl;
+        cout << "account: " << node->Name << endl;
         
         inOrder(node->right);
     }
@@ -124,20 +124,20 @@ private:
 
     
     
-    Node* deleteNode(Node* root, const char* service) 
+    Node* deleteNode(Node* root, const char* account) 
     {
         if (root == nullptr) 
         {
             return root;
         }
 
-        if (strcmp(service, root->serviceName) < 0) 
+        if (strcmp(account, root->Name) < 0) 
         {
-            root->left = deleteNode(root->left, service);
+            root->left = deleteNode(root->left, account);
         }
-        else if (strcmp(service, root->serviceName) > 0) 
+        else if (strcmp(account, root->Name) > 0) 
         {
-            root->right = deleteNode(root->right, service);
+            root->right = deleteNode(root->right, account);
         } 
         else 
         {
@@ -158,13 +158,13 @@ private:
             
             Node* temp = minValueNode(root->right);
 
-            strcpy(root->serviceName, temp->serviceName);
+            strcpy(root->Name, temp->Name);
             
-            strcpy(root->encryptedPassword, temp->encryptedPassword);
+            strcpy(root->Password, temp->Password);
             
             root->xorKey = temp->xorKey;
 
-            root->right = deleteNode(root->right, temp->serviceName);
+            root->right = deleteNode(root->right, temp->Name);
         }
         return root;
     }
@@ -184,16 +184,16 @@ public:
         Node* newNode = new Node();
         char rawPassword[50];
 
-        cout << "Enter Service Name: ";
+        cout << "Enter account Name: ";
         cin.ignore();
-        cin.getline(newNode->serviceName, 50);
+        cin.getline(newNode->Name, 50);
 
         cout << "Enter Password: ";
         cin.getline(rawPassword, 50);
 
         newNode->xorKey = (rand() % 32);
 
-        xorProcess(rawPassword, newNode->encryptedPassword, newNode->xorKey);
+        xorP(rawPassword, newNode->Password, newNode->xorKey);
         root = insert(root, newNode);
         cout << "Password saved successfully!\n";
     }
@@ -205,21 +205,21 @@ public:
             return;
         
         }
-        char service[50];
-        cout << "Enter Service Name to retrieve password: ";
+        char account[50];
+        cout << "Enter account Name to retrieve password: ";
         cin.ignore();
-        cin.getline(service, 50);
+        cin.getline(account, 50);
 
-        Node* result = search(root, service);
+        Node* result = search(root, account);
         if (result) 
         {
             char decrypted[50];
-            xorProcess(result->encryptedPassword, decrypted, result->xorKey);
-            cout << "Service: " << result->serviceName << "\nPassword: " << decrypted << endl;
+            xorP(result->Password, decrypted, result->xorKey);
+            cout << "account: " << result->Name << "\nPassword: " << decrypted << endl;
         } 
         else 
         {
-            cout << "Service not found.\n";
+            cout << "account not found.\n";
         }
     }
 
@@ -227,10 +227,10 @@ public:
     {
         if (root == nullptr) 
         {
-            cout << "No Services available.\n";
+            cout << "No accounts available.\n";
             return;
         }
-        cout << "--- Managed Services ---\n";
+        cout << "--- Managed accounts ---\n";
         inOrder(root);
         cout << "------------------------\n";
     }
@@ -242,19 +242,19 @@ public:
             return;
         }
 
-        char service[50];
-        cout << "Enter Service Name to delete: ";
+        char account[50];
+        cout << "Enter account Name to delete: ";
         cin.ignore();
-        cin.getline(service, 50);
+        cin.getline(account, 50);
 
-        if (search(root, service) != nullptr) 
+        if (search(root, account) != nullptr) 
         {
-            root = deleteNode(root, service);
-            cout << "Service '" << service << "' deleted successfully.\n";
+            root = deleteNode(root, account);
+            cout << "account '" << account << "' deleted successfully.\n";
         } 
         else 
         {
-            cout << "Service not found.\n";
+            cout << "account not found.\n";
         }
     }
 
@@ -283,9 +283,9 @@ public:
         {
             Node* newNode = new Node();
         
-            strcpy(newNode->serviceName, tempNode.serviceName);
+            strcpy(newNode->Name, tempNode.Name);
         
-            strcpy(newNode->encryptedPassword, tempNode.encryptedPassword);
+            strcpy(newNode->Password, tempNode.Password);
         
             newNode->xorKey = tempNode.xorKey;
         
@@ -306,8 +306,8 @@ int main()
     {
         cout << "\n--- Password Manager ---\n";
         cout << "1. Add Password\n";
-        cout << "2. Retrive Service and Password\n";
-        cout << "3. Display All Services\n";
+        cout << "2. Retrive account and Password\n";
+        cout << "3. Display All accounts\n";
         cout << "4. Delete Password\n";
         cout << "5. Exit\n";
         cout << "Enter choice: ";
