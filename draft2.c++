@@ -6,14 +6,14 @@
 
 using namespace std;
 
-struct PasswordNode 
+struct Node 
 {
     char serviceName[50];
     char encryptedPassword[50];
     int xorKey;
-    PasswordNode *left, *right;
+    Node *left, *right;
 
-    PasswordNode() 
+    Node() 
     {
         right = left = nullptr;
         xorKey = 0;
@@ -24,7 +24,7 @@ struct PasswordNode
 class PasswordManager 
 {
 private:
-    PasswordNode* root;
+    Node* root;
 
     void xorProcess(const char* input, char* output, int key) 
     {
@@ -36,7 +36,7 @@ private:
         output[i] = '\0';
     }
 
-    PasswordNode* insert(PasswordNode* node, PasswordNode* newNode) 
+    Node* insert(Node* node, Node* newNode) 
     {
         if (node == nullptr) 
         {
@@ -54,7 +54,7 @@ private:
     }
 
 
-    PasswordNode* search(PasswordNode* node, const char* service) 
+    Node* search(Node* node, const char* service) 
     {
         if (node == nullptr || strcmp(node->serviceName, service) == 0) 
         {
@@ -69,7 +69,7 @@ private:
 
 
 
-    void inOrder(PasswordNode* node) 
+    void inOrder(Node* node) 
     {
         if (node == nullptr) 
         {
@@ -82,13 +82,13 @@ private:
         inOrder(node->right);
     }
 
-    void savePreOrder(PasswordNode* node, ofstream& outFile) 
+    void savePreOrder(Node* node, ofstream& outFile) 
     {
         if (node == nullptr) 
         {
             return;
         }
-        outFile.write(reinterpret_cast<const char*>(node), sizeof(PasswordNode));
+        outFile.write(reinterpret_cast<const char*>(node), sizeof(Node));
         
         savePreOrder(node->left, outFile);
         
@@ -97,7 +97,7 @@ private:
 
 
 
-    void clearBST(PasswordNode* node) 
+    void clearBST(Node* node) 
     {
         if (node == nullptr) 
         {
@@ -112,9 +112,9 @@ private:
 
     
     
-    PasswordNode* minValueNode(PasswordNode* node) 
+    Node* minValueNode(Node* node) 
     {
-        PasswordNode* current = node;
+        Node* current = node;
         while (current && current->left != nullptr) 
         {
             current = current->left;
@@ -124,7 +124,7 @@ private:
 
     
     
-    PasswordNode* deleteNode(PasswordNode* root, const char* service) 
+    Node* deleteNode(Node* root, const char* service) 
     {
         if (root == nullptr) 
         {
@@ -143,20 +143,20 @@ private:
         {
             if (root->left == nullptr) 
             {
-                PasswordNode* temp = root->right;
+                Node* temp = root->right;
                 delete root;
                 return temp;
             } 
             else if (root->right == nullptr) 
             {
-                PasswordNode* temp = root->left;
+                Node* temp = root->left;
                 delete root;
                 return temp;
             }
 
             
             
-            PasswordNode* temp = minValueNode(root->right);
+            Node* temp = minValueNode(root->right);
 
             strcpy(root->serviceName, temp->serviceName);
             
@@ -181,7 +181,7 @@ public:
     }
 
     void addPassword() {
-        PasswordNode* newNode = new PasswordNode();
+        Node* newNode = new Node();
         char rawPassword[50];
 
         cout << "Enter Service Name: ";
@@ -210,7 +210,7 @@ public:
         cin.ignore();
         cin.getline(service, 50);
 
-        PasswordNode* result = search(root, service);
+        Node* result = search(root, service);
         if (result) 
         {
             char decrypted[50];
@@ -278,10 +278,10 @@ public:
             return;
         }
 
-        PasswordNode tempNode;
-        while (inFile.read(reinterpret_cast<char*>(&tempNode), sizeof(PasswordNode))) 
+        Node tempNode;
+        while (inFile.read(reinterpret_cast<char*>(&tempNode), sizeof(Node))) 
         {
-            PasswordNode* newNode = new PasswordNode();
+            Node* newNode = new Node();
         
             strcpy(newNode->serviceName, tempNode.serviceName);
         
