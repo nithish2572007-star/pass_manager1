@@ -110,7 +110,7 @@ private:
         delete node;
     }
     
-    void updateNode(Node* node, const char* a)
+    bool updateNode(Node* node, const char* a)
     {
         char oldPassword[50],password[50];
         cout << "Enter Old Password: ";
@@ -126,10 +126,12 @@ private:
             
             node->xorKey = (rand() % 32);
             xorP(newPassword, node->Password, node->xorKey);
+            return true;
         }
         else
         {
             cout<<"Password Mismatch.\n";
+            return false;
         }
 
     }
@@ -297,8 +299,14 @@ public:
         
         if (search(root, account) != nullptr)
         {
-            updateNode(root, account);
-            cout << "Password for account '" << account << "' updated successfully.\n";
+            if(updateNode(root, account))
+            {
+                cout << "Password for account '" << account << "' updated successfully.\n";
+            }
+            else
+            {
+                cout << "Password update failed.\n";
+            }
         }
         else
         {
