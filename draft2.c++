@@ -3,6 +3,7 @@
 #include <cstring>
 #include <ctime>
 #include <cstdlib>
+#include <stdexcept>
 
 using namespace std;
 
@@ -21,20 +22,13 @@ struct Node
 };
 
 
-class PasswordManager 
+class Manager
 {
-private:
+protected:
+
     Node* root;
 
-    void xorP(const char* input, char* output, int key) 
-    {
-        int i = 0;
-        for (i = 0; input[i] != '\0'; i++) 
-        {
-            output[i] = input[i] ^ key;
-        }
-        output[i] = '\0';
-    }
+    virtual void xorP(const char* input, char* output, int key) = 0;
 
     Node* insert(Node* node, Node* newNode) 
     {
@@ -77,7 +71,7 @@ private:
         }
         inOrder(node->left);
         
-        cout << "account: " << node->Name << endl;
+        cout << "Account: " << node->Name << endl;
         
         inOrder(node->right);
     }
@@ -193,31 +187,67 @@ private:
         }
         return root;
     }
+public:
+    Manager()
+    {
+        root = nullptr;
+    }
+    ~Manager()
+    {
+        clearBST(root);
+    }
+    virtual void addPassword() = 0;
+    virtual void searchPassword() = 0;
+    virtual void displayAll() = 0;
+    virtual void removePassword() = 0;
+    virtual void updatePassword() = 0;
+    virtual void saveToFile() = 0;
+    virtual void loadFromFile() = 0;
+};
+
+class PasswordManager : public Manager
+{
+private:
+    void xorP(const char* input, char* output, int key) override
+        {
+            int i = 0;
+            for (i = 0; input[i] != '\0'; i++) 
+            {
+                    output[i] = input[i] ^ key;
+            }
+            output[i] = '\0';
+        }
 
 public:
-    PasswordManager() : root(nullptr) 
+    PasswordManager() 
     {
         loadFromFile();
     }
 
-    ~PasswordManager() 
-    {
-        clearBST(root);
-    }
 
-    void addPassword() {
+    void addPassword() override
+    {
         Node* newNode = new Node();
         char rawPassword[50];
 
-        cout << "Enter account Name: ";
-        cin.ignore();
+        cout << "Enter Account Name: ";
+
+
         cin.getline(newNode->Name, 50);
-        if (search(root, newNode->Name) != nullptr) 
+        try
         {
-            cout << "Account already exists.\n";
-            delete newNode;
-            return; 
+            if (search(root, newNode->Name) != nullptr) 
+            {
+                throw invalid_argument("Account already exists.\n");
+            }        
         }
+        catch(const exception& e)
+        {
+            cout << e.what() << '\n';
+            delete newNode;
+            return;
+        }
+        
 
         cout << "Enter Password: ";
         cin.getline(rawPassword, 50);
@@ -229,7 +259,7 @@ public:
         cout << "Password saved successfully!\n";
     }
 
-    void searchPassword() 
+    void searchPassword() override
     {
         if(root == nullptr)
         {
@@ -237,16 +267,16 @@ public:
         
         }
         char account[50];
-        cout << "Enter account Name to retrieve password: ";
-        cin.ignore();
+        cout << "Enter account name to retrieve password: ";
+
         cin.getline(account, 50);
 
-        Node* result = search(root, account);
-        if (result) 
+        Node* temp = search(root, account);
+        if (temp) 
         {
             char decrypted[50];
-            xorP(result->Password, decrypted, result->xorKey);
-            cout << "Account: " << result->Name << "\nPassword: " << decrypted << endl;
+            xorP(temp->Password, decrypted, temp->xorKey);
+            cout << "Account: " << temp->Name << "\nPassword: " << decrypted << endl;
         }
         else 
         {
@@ -254,7 +284,7 @@ public:
         }
     }
 
-    void displayAll() 
+    void displayAll() override
     {
         if (root == nullptr) 
         {
@@ -266,14 +296,14 @@ public:
         cout << "------------------------\n";
     }
 
-    void removePassword() 
+    void removePassword() override
     {
         if (root == nullptr)
             return;
 
         char account[50];
-        cout << "Enter account Name to delete: ";
-        cin.ignore();
+        cout << "Enter account name to delete: ";
+        
         cin.getline(account, 50);
 
         if (search(root, account) != nullptr) 
@@ -287,19 +317,21 @@ public:
         }
     }
     
-    void updatePassword()
+    void updatePassword() override
     {
         if (root == nullptr)
             return;
         
         char account[50];
-        cout << "Enter account Name to update: ";
-        cin.ignore();
+        cout << "Enter account name to update: ";
+        cin.clear();
         cin.getline(account, 50);
         
-        if (search(root, account) != nullptr)
+        Node* temp = search(root, account);
+
+        if (temp != nullptr)
         {
-            if(updateNode(root))
+            if(updateNode(temp))
             {
                 cout << "Password for account '" << account << "' updated successfully.\n";
             }
@@ -316,7 +348,7 @@ public:
 
     }
 
-    void saveToFile() 
+    void saveToFile() override
     {
         ofstream outFile("vault1.dat", ios::binary | ios::trunc);
         if (!outFile) 
@@ -328,7 +360,7 @@ public:
         outFile.close();
     }    
 
-    void loadFromFile() 
+    void loadFromFile() override
     {
         ifstream inFile("vault1.dat", ios::binary);
         if (!inFile) 
@@ -358,19 +390,22 @@ public:
 int main() 
 {
     PasswordManager manager;
-    char choice;
+    char choice,t[100];
 
     do 
     {
         cout << "\n--- Password Manager ---\n";
         cout << "1. Add Password\n";
-        cout << "2. Retrive account and Password\n";
-        cout << "3. Display All accounts\n";
+        cout << "2. Retrieve Account and Password\n";
+        cout << "3. Display All Accounts\n";
         cout << "4. Delete Password\n";
         cout << "5. Update Password\n";
         cout << "6. Exit\n";
         cout << "Enter choice: ";
-        cin >> choice;
+        cin.clear();
+        cin.getline(t,100);
+        choice = (t[1]== '\0') ? t[0] : '7';
+        
 
         switch (choice) 
         {
