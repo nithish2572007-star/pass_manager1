@@ -358,7 +358,7 @@ public:
 int main() 
 {
     PasswordManager manager;
-    int choice;
+    char choice;
 
     do 
     {
@@ -374,25 +374,25 @@ int main()
 
         switch (choice) 
         {
-            case 1:
+            case '1':
                 manager.addPassword();
                 break;
-            case 2:
+            case '2':
                 manager.displayAll();
                 manager.searchPassword();
                 break;
-            case 3:
+            case '3':
                 manager.displayAll();
                 break;
-            case 4:
+            case '4':
                 manager.displayAll();
                 manager.removePassword();
                 break;
-            case 5:
+            case '5':
                 manager.displayAll();
                 manager.updatePassword();
                 break;
-            case 6:
+            case '6':
                 cout << "Saving data and exiting...\n";
                 break;
             default:
