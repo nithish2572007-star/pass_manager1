@@ -24,11 +24,17 @@ struct Node
 
 class Manager
 {
+    const int MASTER_KEY = 35;
 protected:
 
     Node* root;
-
+    
     virtual void xorP(const char* input, char* output, int key) = 0;
+
+    void xorcrypt(int& data)
+	{
+		data = data ^ MASTER_KEY;
+	}
 
     Node* insert(Node* node, Node* newNode) 
     {
@@ -119,6 +125,7 @@ protected:
             cin.getline(newPassword, 50);
             
             node->xorKey = (rand() % 32);
+            xorcrypt(node->xorKey);
             xorP(newPassword, node->Password, node->xorKey);
             return true;
         }
@@ -209,14 +216,15 @@ class PasswordManager : public Manager
 {
 private:
     void xorP(const char* input, char* output, int key) override
+    {   
+        xorcrypt(key);
+        int i = 0;
+        for (i = 0; input[i] != '\0'; i++) 
         {
-            int i = 0;
-            for (i = 0; input[i] != '\0'; i++) 
-            {
-                    output[i] = input[i] ^ key;
-            }
-            output[i] = '\0';
+                output[i] = input[i] ^ key;
         }
+        output[i] = '\0';
+    }
 
 public:
     PasswordManager() 
@@ -253,6 +261,7 @@ public:
         cin.getline(rawPassword, 50);
 
         newNode->xorKey = (rand() % 32);
+        xorcrypt(newNode->xorKey);
 
         xorP(rawPassword, newNode->Password, newNode->xorKey);
         root = insert(root, newNode);
@@ -268,15 +277,14 @@ public:
         }
         char account[50];
         cout << "Enter account name to retrieve password: ";
-
         cin.getline(account, 50);
 
-        Node* temp = search(root, account);
-        if (temp) 
+        Node* result = search(root, account);
+        if (result) 
         {
             char decrypted[50];
-            xorP(temp->Password, decrypted, temp->xorKey);
-            cout << "Account: " << temp->Name << "\nPassword: " << decrypted << endl;
+            xorP(result->Password, decrypted, result->xorKey);
+            cout << "Account: " << result->Name << "\nPassword: " << decrypted << endl;
         }
         else 
         {
@@ -303,7 +311,7 @@ public:
 
         char account[50];
         cout << "Enter account name to delete: ";
-        
+        cin.clear();
         cin.getline(account, 50);
 
         if (search(root, account) != nullptr) 
@@ -327,11 +335,11 @@ public:
         cin.clear();
         cin.getline(account, 50);
         
-        Node* temp = search(root, account);
+        Node* node = search(root, account);
 
-        if (temp != nullptr)
+        if (node != nullptr)
         {
-            if(updateNode(temp))
+            if(updateNode(node))
             {
                 cout << "Password for account '" << account << "' updated successfully.\n";
             }
@@ -374,13 +382,13 @@ public:
             Node* newNode = new Node();
         
             strcpy(newNode->Name, tempNode.Name);
-        
+
             strcpy(newNode->Password, tempNode.Password);
         
             newNode->xorKey = tempNode.xorKey;
         
             newNode->left = newNode->right = nullptr;
-        
+            
             root = insert(root, newNode);
         }
         inFile.close();
