@@ -110,7 +110,7 @@ private:
         delete node;
     }
     
-    bool updateNode(Node* node, const char* a)
+    bool updateNode(Node* node)
     {
         char oldPassword[50],password[50];
         cout << "Enter Old Password: ";
@@ -121,7 +121,7 @@ private:
         {
             cout<<"Password Verified, Enter new Passsword to update: ";
             char newPassword[50];
-            cin.ignore();
+            
             cin.getline(newPassword, 50);
             
             node->xorKey = (rand() % 32);
@@ -299,7 +299,7 @@ public:
         
         if (search(root, account) != nullptr)
         {
-            if(updateNode(root, account))
+            if(updateNode(root))
             {
                 cout << "Password for account '" << account << "' updated successfully.\n";
             }
