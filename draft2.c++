@@ -399,7 +399,7 @@ int main()
                 cout << "Invalid choice. Try again.\n";
         }
         manager.saveToFile();
-    } while (choice != 6);
+    } while (choice != '6');
 
     return 0;
 }
